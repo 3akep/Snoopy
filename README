@@ -85,12 +85,15 @@ CLASS METHODS:
 	the form elements from the page, stripping out html tags and other
 	irrelevant data.		
 
-	fetchlinks($URI)
+	fetchlinks($URI) or fetchlinks($URI, $img)
 	----------------
 
 	This behaves exactly like fetch() except that it only returns
 	the links from the page. By default, relative links are
 	converted to their fully qualified URL form.
+	Support SRC, HREF and URL tags attribute.
+	$img is boolean attribute for fetch only image link 
+	(true - for enable advanced filter)
 
 	submit($URI,$formvars)
 	----------------------
@@ -147,6 +150,7 @@ CLASS VARIABLES:	(default value in parenthesis)
 	$capath			name of a correctly hashed directory with CA certificate(s)
 					if either $cafile or $capath is set, SSL certificate
 					verification is enabled
+	$source		string source of webpage before $results changed other functions
 	
 
 EXAMPLES:
