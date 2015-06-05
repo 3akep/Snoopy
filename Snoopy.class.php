@@ -297,19 +297,20 @@ class Snoopy
         Function:	fetchlinks
         Purpose:	fetch the links from a web page
         Input:		$URI	where you are fetching from
+        		$img	link only for SRC tag attribute
         Output:		$this->results	an array of the URLs
     \*======================================================================*/
 
-    function fetchlinks($URI)
+    function fetchlinks($URI, $img = false)
     {
         if ($this->fetch($URI) !== false) {
             if ($this->lastredirectaddr)
                 $URI = $this->lastredirectaddr;
             if (is_array($this->results)) {
                 for ($x = 0; $x < count($this->results); $x++)
-                    $this->results[$x] = $this->_striplinks($this->results[$x]);
+                    $this->results[$x] = $this->_striplinks($this->results[$x], $img);
             } else
-                $this->results = $this->_striplinks($this->results);
+                $this->results = $this->_striplinks($this->results, $img);
 
             if ($this->expandlinks)
                 $this->results = $this->_expandlinks($this->results, $URI);
@@ -454,30 +455,42 @@ class Snoopy
         Function:	_striplinks
         Purpose:	strip the hyperlinks from an html document
         Input:		$document	document to strip.
+        		$img 		only SRC attribute check
         Output:		$match		an array of the links
     \*======================================================================*/
 
-    function _striplinks($document)
+    function _striplinks($document, $img = false)
     {
-        preg_match_all("'<\s*a\s.*?href\s*=\s*			# find <a href=
-						([\"\'])?					# find single or double quote
-						(?(1) (.*?)\\1 | ([^\s\>]+))		# if quote found, match up to next matching
-													# quote, otherwise match up to next space
-						'isx", $document, $links);
-
+        $match = array(); // Create array before use
+        if ($img)
+        {
+        preg_match_all("/<\s*[link|img|a|div].*\s(src|href|url).*[\"|\'|\(|](.*)[\#|\?|\"|\'|\)]/isxU", $document, $links);
+        }
+        else 
+        {
+        preg_match_all("'<\s*a\s.*?href\s*=\s*	# find <a href=
+		([\"\'])?	# find single or double quote
+		(?(1) (.*?)\\1 | ([^\s\>]+))	# if quote found, match up to next matching
+				# quote, otherwise match up to next space
+		'isx", $document, $links);
+        }
 
         // catenate the non-empty matches from the conditional subpattern
-
+        if (!empty($links)) // Check is array empty
+        {
         while (list($key, $val) = each($links[2])) {
             if (!empty($val))
                 $match[] = $val;
         }
-
+        // Control each()
+        if (isset($links[3]))
+        {
         while (list($key, $val) = each($links[3])) {
             if (!empty($val))
                 $match[] = $val;
         }
-
+        }
+        }
         // return the links
         return $match;
     }
