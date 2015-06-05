@@ -65,6 +65,7 @@ class Snoopy
     var $accept = "image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, */*";
 
     var $results = ""; // where the content is put
+    var $source = ""; // used for store content before it changed
 
     var $error = ""; // error messages sent here
     var $response_code = ""; // response code returned from server
@@ -779,6 +780,16 @@ class Snoopy
         else
             $this->results = $results;
 
+        if (is_array($this->results)) 
+            { 
+            	// save bigest member in $this->source
+                $this->source = $this->results[0];
+                for ($x = 1; $x < count($this->results); $x++)
+                    if (strlen($this->results[$x]) > strlen($this->source))
+                    $this->source = $this->results[$x];
+            } else 
+            $this->source = $this->results;
+            
         return $this;
     }
 
